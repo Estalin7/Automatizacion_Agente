@@ -244,21 +244,21 @@ const MapPicker = (() => {
       <div id="mp-modal">
         <div id="mp-header">
           <h3>📍 Seleccionar dirección de entrega</h3>
-          <button id="mp-close" onclick="MapPicker.close()" title="Cerrar">✕</button>
+          <button id="mp-close" onclick="window.MapPicker.close()" title="Cerrar">✕</button>
         </div>
 
         <div id="mp-search-wrap">
           <input id="mp-search" type="text"
             placeholder="🔍 Escribe tu dirección (ej: Av. Larco 123, Miraflores)..."
             autocomplete="off" autocorrect="off" spellcheck="false">
-          <button id="mp-use-typed" onclick="MapPicker._useTyped()">
+          <button id="mp-use-typed" onclick="window.MapPicker._useTyped()">
             ✍️ Usar esta dirección
           </button>
         </div>
 
         <!-- Accesos rápidos por distrito -->
         <div id="mp-districts">
-          ${LIMA_DISTRICTS.map(d => `<button class="mp-district-btn" onclick="MapPicker._useDistrict('${d}')">${d}</button>`).join('')}
+          ${LIMA_DISTRICTS.map(d => `<button class="mp-district-btn" onclick="window.MapPicker._useDistrict('${d}')">${d}</button>`).join('')}
         </div>
 
         <!-- Estado de carga -->
@@ -291,8 +291,8 @@ const MapPicker = (() => {
 
         <div id="mp-footer">
           <span id="mp-tip">💡 Tip: selecciona un distrito para autocompletar</span>
-          <button id="mp-cancel" onclick="MapPicker.close()">Cancelar</button>
-          <button id="mp-confirm" onclick="MapPicker.confirm()">✅ Confirmar dirección</button>
+          <button id="mp-cancel" onclick="window.MapPicker.close()">Cancelar</button>
+          <button id="mp-confirm" onclick="window.MapPicker.confirm()">✅ Confirmar dirección</button>
         </div>
       </div>
     `;
@@ -546,6 +546,8 @@ const MapPicker = (() => {
     }
   }
 
-  // Exponer globalmente
-  window.MapPicker = { open, close, confirm, _useTyped, _useDistrict };
+  // Exponer globalmente — retornar el objeto para que `const MapPicker` no quede como undefined
+  const _api = { open, close, confirm, _useTyped, _useDistrict };
+  window.MapPicker = _api;
+  return _api;
 })();
