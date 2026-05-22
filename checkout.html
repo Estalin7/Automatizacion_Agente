@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Checkout seguro — Chocolates Helena. Completa tu pedido con pago encriptado y entrega a domicilio.">
-  <title>Checkout — Chocolates Helena</title>
+  <meta name="description" content="Checkout seguro — Chocolates Helena Perú. Completa tu pedido con pago encriptado y entrega en Lima.">
+  <title>Checkout — Chocolates Helena Perú</title>
   <link rel="stylesheet" href="css/main.css">
   <link rel="stylesheet" href="css/animations.css">
   <link rel="stylesheet" href="css/checkout.css">
@@ -89,11 +89,27 @@
               </div>
               <div class="form-group">
                 <label class="form-label" for="field-phone">Teléfono *</label>
-                <input type="tel" id="field-phone" class="form-input" placeholder="+57 300 000 0000" required autocomplete="tel">
+                <input type="tel" id="field-phone" class="form-input" placeholder="+51 999 000 000" required autocomplete="tel">
               </div>
               <div class="form-group full-span">
                 <label class="form-label" for="field-address">Dirección de Entrega *</label>
-                <input type="text" id="field-address" class="form-input" placeholder="Calle 80 #10-25, Bogotá, Colombia" required autocomplete="street-address">
+                <div style="display:flex;gap:10px;align-items:stretch">
+                  <input type="text" id="field-address" class="form-input"
+                    placeholder="Av. Larco 123, Miraflores, Lima"
+                    required autocomplete="street-address" style="flex:1">
+                  <button type="button" id="open-map-btn"
+                    style="flex-shrink:0;padding:0 18px;border-radius:12px;
+                           background:linear-gradient(135deg,#C8102E,#8B0A1E 60%,#C49A35);
+                           color:#fff;border:none;cursor:pointer;font-size:0.82rem;
+                           font-weight:600;white-space:nowrap;letter-spacing:0.04em;
+                           transition:all 0.25s;box-shadow:0 4px 16px rgba(200,16,46,0.35);
+                           display:flex;align-items:center;gap:6px"
+                    onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(200,16,46,0.5)'"
+                    onmouseout="this.style.transform='';this.style.boxShadow='0 4px 16px rgba(200,16,46,0.35)'"
+                    onclick="MapPicker.open(function(loc){ document.getElementById('field-address').value=loc.address; document.getElementById('field-address').dispatchEvent(new Event('input')); })">
+                    📍 Elegir en Mapa
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -202,7 +218,7 @@
           <div class="summary-divider"></div>
           <div class="summary-row">
             <span class="summary-label">Subtotal</span>
-            <span class="summary-value" id="summary-subtotal">$0 COP</span>
+            <span class="summary-value" id="summary-subtotal">S/ 0.00</span>
           </div>
           <div class="summary-row">
             <span class="summary-label">Envío</span>
@@ -211,10 +227,10 @@
           <div class="summary-divider"></div>
           <div class="summary-row total">
             <span class="summary-label">Total</span>
-            <span class="summary-value" id="summary-total">$0 COP</span>
+            <span class="summary-value" id="summary-total">S/ 0.00</span>
           </div>
           <div style="margin-top:var(--space-lg);text-align:center;color:var(--text-muted);font-size:0.8rem">
-            🍫 Chocolatería artesanal colombiana
+            🍫 Chocolatería artesanal peruana 🇵🇪
           </div>
         </div>
 
@@ -266,6 +282,7 @@
 <script src="js/catalog.js"></script>
 <script src="js/ui.js"></script>
 <script src="js/geminiConfig.js"></script>
+<script src="js/mapPicker.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
   GeminiConfig.init();
@@ -295,13 +312,13 @@ document.addEventListener('DOMContentLoaded', () => {
           <div class="summary-item-name">${item.name}</div>
           <div class="summary-item-qty">x${item.quantity}</div>
         </div>
-        <div class="summary-item-price">$${item.subtotal.toLocaleString('es-CO')}</div>
+        <div class="summary-item-price">S/ ${item.subtotal.toLocaleString('es-PE')}</div>
       </div>
     `).join('');
 
     const total = SessionState.getCartTotal();
-    if (subtotalEl) subtotalEl.textContent = `$${total.toLocaleString('es-CO')} COP`;
-    if (totalEl)    totalEl.textContent = `$${total.toLocaleString('es-CO')} COP`;
+    if (subtotalEl) subtotalEl.textContent = `S/ ${total.toLocaleString('es-PE')}`;
+    if (totalEl)    totalEl.textContent = `S/ ${total.toLocaleString('es-PE')}`;
   }
 
   renderSummary();

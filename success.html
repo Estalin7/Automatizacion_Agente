@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="¡Pedido confirmado! — Chocolates Helena. Tu pedido está en camino.">
-  <title>¡Éxito! Tu pedido está en camino — Chocolates Helena</title>
+  <meta name="description" content="¡Pedido confirmado! — Chocolates Helena Perú. Tu pedido está en camino en Lima.">
+  <title>¡Éxito! Tu pedido está en camino — Chocolates Helena Perú</title>
   <link rel="stylesheet" href="css/main.css">
   <link rel="stylesheet" href="css/animations.css">
   <style>
@@ -224,11 +224,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // Mostrar datos demo si no hay resultado real
     const demo = {
       status: 'SUCCESS',
-      pedido: { id: 'PED-DEMO1234', status: 'En Camino', items: [{ name: 'Trufa Negra Intenso', quantity: 2, subtotal: 90000 }], total: 90000, totalFormateado: '$90.000 COP' },
-      cliente: { nombre: 'Cliente Demo', email: 'demo@helena.co', direccion: 'Calle 80 #10-25, Bogotá' },
+      pedido: { id: 'PED-DEMO1234', status: 'En Camino', items: [{ name: 'Trufa Negra Intenso', quantity: 2, subtotal: 90000 }], total: 90000, totalFormateado: 'S/90.00' },
+      cliente: { nombre: 'Cliente Demo', email: 'demo@helena.pe', direccion: 'Av. Larco 1234, Miraflores, Lima' },
       pago: { aprobado: true, token: 'tok_DEMO123456789' },
-      entrega: { trackingId: 'TRK-DEMO1A2B3', origen: 'Bodega Helena — Chapinero, Bogotá', destino: { direccion: 'Calle 80 #10-25, Bogotá', ciudad: 'Bogotá', lat: 4.7110, lng: -74.0721 }, distanciaKm: 5.2, tiempoEstimadoMin: 32, tiempoEstimadoTexto: '32 minutos', vehiculo: 'Moto de Delivery Helena', rutaPuntos: [] },
-      mensajeFrontend: '🍫 ¡Tu pedido PED-DEMO1234 está en camino! Tiempo estimado: 32 minutos. Tracking: TRK-DEMO1A2B3',
+      entrega: { trackingId: 'TRK-DEMO1A2B3', origen: 'Bodega Helena — Miraflores, Lima', destino: { direccion: 'Av. Larco 1234, Miraflores, Lima', ciudad: 'Lima', lat: -12.1191, lng: -77.0299 }, distanciaKm: 3.8, tiempoEstimadoMin: 25, tiempoEstimadoTexto: '25 minutos', vehiculo: 'Moto de Delivery Helena — Lima', rutaPuntos: [] },
+      mensajeFrontend: '🍫 ¡Tu pedido PED-DEMO1234 está en camino! Tiempo estimado: 25 minutos. Tracking: TRK-DEMO1A2B3',
       generadoEn: new Date().toISOString()
     };
     loadResult(demo);
@@ -255,11 +255,11 @@ function loadResult(result) {
     `¡${c.nombre || 'Estimado cliente'}, tu pedido ${p.id || ''} ha sido procesado por nuestro enjambre de agentes! 🤖🍫`;
 
   document.getElementById('pedido-id').textContent = p.id || '—';
-  document.getElementById('pedido-total').textContent = p.totalFormateado || `$${(p.total||0).toLocaleString('es-CO')} COP`;
+  document.getElementById('pedido-total').textContent = p.totalFormateado || `S/ ${(p.total||0).toLocaleString('es-PE')}`;
 
   const items = p.items || [];
   document.getElementById('order-items-list').innerHTML = items.map(i =>
-    `<div class="order-item"><span class="order-item-qty">x${i.quantity}</span> ${i.name} <span style="margin-left:auto;color:var(--gold)">$${(i.subtotal||0).toLocaleString('es-CO')}</span></div>`
+    `<div class="order-item"><span class="order-item-qty">x${i.quantity}</span> ${i.name} <span style="margin-left:auto;color:var(--gold)">S/ ${(i.subtotal||0).toLocaleString('es-PE')}</span></div>`
   ).join('') || '<div style="color:var(--text-muted)">—</div>';
 
   document.getElementById('cliente-nombre').textContent = c.nombre || '—';

@@ -1,32 +1,44 @@
-/* ── Maps_mcp_server — Simulado ─────────────────────────────── */
+/* ── Maps_mcp_server — Simulado (Ciudades Peruanas) ─────────── */
 
 const MapsMCP = {
   SERVER_NAME: 'Maps_mcp_server',
 
-  // Base de coordenadas de ciudades colombianas
+  // Base de coordenadas de ciudades peruanas
   _geoBase: {
-    'bogota':      { lat: 4.7110,  lng: -74.0721, ciudad: 'Bogotá' },
-    'medellín':    { lat: 6.2442,  lng: -75.5812, ciudad: 'Medellín' },
-    'medellin':    { lat: 6.2442,  lng: -75.5812, ciudad: 'Medellín' },
-    'cali':        { lat: 3.4516,  lng: -76.5320, ciudad: 'Cali' },
-    'barranquilla':{ lat: 10.9639, lng: -74.7964, ciudad: 'Barranquilla' },
-    'cartagena':   { lat: 10.3910, lng: -75.4794, ciudad: 'Cartagena' },
-    'bucaramanga': { lat: 7.1193,  lng: -73.1227, ciudad: 'Bucaramanga' },
-    'pereira':     { lat: 4.8133,  lng: -75.6961, ciudad: 'Pereira' },
-    'manizales':   { lat: 5.0703,  lng: -75.5138, ciudad: 'Manizales' },
-    'armenia':     { lat: 4.5339,  lng: -75.6811, ciudad: 'Armenia' },
-    'ibague':      { lat: 4.4389,  lng: -75.2322, ciudad: 'Ibagué' },
-    'default':     { lat: 4.7110,  lng: -74.0721, ciudad: 'Bogotá' }
+    'lima':        { lat: -12.0464, lng: -77.0428, ciudad: 'Lima' },
+    'miraflores':  { lat: -12.1191, lng: -77.0299, ciudad: 'Lima - Miraflores' },
+    'san isidro':  { lat: -12.0989, lng: -77.0369, ciudad: 'Lima - San Isidro' },
+    'surco':       { lat: -12.1397, lng: -76.9976, ciudad: 'Lima - Surco' },
+    'callao':      { lat: -12.0565, lng: -77.1181, ciudad: 'Callao' },
+    'arequipa':    { lat: -16.4090, lng: -71.5375, ciudad: 'Arequipa' },
+    'cusco':       { lat: -13.5319, lng: -71.9675, ciudad: 'Cusco' },
+    'cuzco':       { lat: -13.5319, lng: -71.9675, ciudad: 'Cusco' },
+    'trujillo':    { lat: -8.1091,  lng: -79.0215, ciudad: 'Trujillo' },
+    'piura':       { lat: -5.1945,  lng: -80.6328, ciudad: 'Piura' },
+    'chiclayo':    { lat: -6.7714,  lng: -79.8409, ciudad: 'Chiclayo' },
+    'iquitos':     { lat: -3.7437,  lng: -73.2516, ciudad: 'Iquitos' },
+    'puno':        { lat: -15.8402, lng: -70.0219, ciudad: 'Puno' },
+    'huancayo':    { lat: -12.0647, lng: -75.2048, ciudad: 'Huancayo' },
+    'tacna':       { lat: -18.0066, lng: -70.2493, ciudad: 'Tacna' },
+    'ica':         { lat: -14.0678, lng: -75.7286, ciudad: 'Ica' },
+    'ayacucho':    { lat: -13.1588, lng: -74.2236, ciudad: 'Ayacucho' },
+    'cajamarca':   { lat: -7.1638,  lng: -78.5006, ciudad: 'Cajamarca' },
+    'tarapoto':    { lat: -6.4851,  lng: -76.3640, ciudad: 'Tarapoto' },
+    'default':     { lat: -12.0464, lng: -77.0428, ciudad: 'Lima' }
   },
 
-  // Origen de despacho (bodega Chocolates Helena)
-  _origen: { lat: 4.6551, lng: -74.0558, nombre: 'Bodega Helena — Chapinero, Bogotá' },
+  // Origen de despacho (bodega Chocolates Helena — Lima, Perú)
+  _origen: { lat: -12.1191, lng: -77.0299, nombre: 'Bodega Helena — Miraflores, Lima' },
 
   _delay(ms) { return new Promise(r => setTimeout(r, ms)); },
 
   _log(tool, params, result, status) {
-    SessionState.addMCPCall(this.SERVER_NAME, tool, params, result, status);
-    SessionState.addToLog('Sistema MCP', `${this.SERVER_NAME}::${tool} → ${status === 'success' ? '✅' : '❌'} Ruta calculada: ${result.distanciaKm || '?'}km, ${result.tiempoEstimadoMin || '?'}min`, 'mcp', '🗺️');
+    try {
+      if (typeof SessionState !== 'undefined' && SessionState.addMCPCall) {
+        SessionState.addMCPCall(this.SERVER_NAME, tool, params, result, status);
+        SessionState.addToLog('Sistema MCP', `${this.SERVER_NAME}::${tool} → ${status === 'success' ? '✅' : '❌'} Ruta calculada: ${result.distanciaKm || '?'}km, ${result.tiempoEstimadoMin || '?'}min`, 'mcp', '🗺️');
+      }
+    } catch(e) { console.warn('MapsMCP._log error:', e); }
   },
 
   _detectCiudad(direccion) {
@@ -95,7 +107,7 @@ const MapsMCP = {
         ? `${tiempoEstimadoMin} minutos`
         : `${Math.floor(tiempoEstimadoMin/60)}h ${tiempoEstimadoMin%60}min`,
       rutaPuntos,
-      vehiculo: 'Moto de Delivery Helena',
+      vehiculo: 'Moto de Delivery Helena — Lima',
       conductor: 'Asignado automáticamente',
       tracking_id: 'TRK-' + Date.now().toString(36).toUpperCase(),
       calculado_en: new Date().toISOString()

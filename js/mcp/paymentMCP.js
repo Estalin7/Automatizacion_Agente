@@ -10,8 +10,12 @@ const PaymentMCP = {
   _delay(ms) { return new Promise(r => setTimeout(r, ms)); },
 
   _log(tool, params, result, status) {
-    SessionState.addMCPCall(this.SERVER_NAME, tool, params, result, status);
-    SessionState.addToLog('Sistema MCP', `${this.SERVER_NAME}::${tool} → ${status === 'success' ? '✅' : '⚠️'} ${result.mensaje || ''}`, 'mcp', '💳');
+    try {
+      if (typeof SessionState !== 'undefined' && SessionState.addMCPCall) {
+        SessionState.addMCPCall(this.SERVER_NAME, tool, params, result, status);
+        SessionState.addToLog('Sistema MCP', `${this.SERVER_NAME}::${tool} → ${status === 'success' ? '✅' : '⚠️'} ${result.mensaje || ''}`, 'mcp', '💳');
+      }
+    } catch(e) { console.warn('PaymentMCP._log error:', e); }
   },
 
   _generateToken() {
@@ -62,11 +66,11 @@ const PaymentMCP = {
       token,
       aprobado,
       monto,
-      moneda: 'COP',
+      moneda: 'PEN',
       codigo_autorizacion: aprobado ? this._generateAuthCode() : null,
       codigo_rechazo: aprobado ? null : codigo_rechazo,
       mensaje: aprobado
-        ? `Pago aprobado por $${monto.toLocaleString('es-CO')} COP`
+        ? `Pago aprobado por S/ ${monto.toLocaleString('es-PE')}`
         : mensajesRechazo[codigo_rechazo] || 'Pago rechazado por el banco.',
       tarjeta_ultimos4: normalized.slice(-4) || '****',
       timestamp: new Date().toISOString(),

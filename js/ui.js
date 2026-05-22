@@ -45,7 +45,7 @@ const UI = {
     if (cart.length === 0) {
       cartItems.innerHTML = '';
       if (cartEmpty) cartEmpty.style.display = 'flex';
-      if (cartTotal) cartTotal.textContent = '$0 COP';
+      if (cartTotal) cartTotal.textContent = 'S/ 0.00';
       return;
     }
 
@@ -55,7 +55,7 @@ const UI = {
         <img src="${item.image}" alt="${item.name}" class="cart-item-img">
         <div class="cart-item-info">
           <div class="cart-item-name">${item.name}</div>
-          <div class="cart-item-price">$${item.unitPrice.toLocaleString('es-CO')} COP</div>
+          <div class="cart-item-price">S/ ${item.unitPrice.toLocaleString('es-PE')}</div>
           <div class="cart-item-controls">
             <button class="qty-btn" onclick="Cart.updateQuantity('${item.productId}', ${item.quantity - 1})">−</button>
             <span class="qty-val">${item.quantity}</span>
@@ -63,13 +63,13 @@ const UI = {
           </div>
         </div>
         <div class="cart-item-subtotal">
-          <div>$${item.subtotal.toLocaleString('es-CO')}</div>
+          <div>S/ ${item.subtotal.toLocaleString('es-PE')}</div>
           <button class="cart-remove-btn" onclick="Cart.removeItem('${item.productId}')" title="Eliminar">✕</button>
         </div>
       </div>
     `).join('');
 
-    if (cartTotal) cartTotal.textContent = `$${total.toLocaleString('es-CO')} COP`;
+    if (cartTotal) cartTotal.textContent = `S/ ${total.toLocaleString('es-PE')}`;
   },
 
   toggleCart() {
@@ -107,8 +107,8 @@ const UI = {
           <div class="product-footer">
             <div class="product-price">
               <span class="price-label">Desde</span>
-              <span class="price-amount">$${p.price.toLocaleString('es-CO')}</span>
-              <span class="price-currency">COP</span>
+              <span class="price-amount">S/ ${p.price.toLocaleString('es-PE')}</span>
+              <span class="price-currency">PEN</span>
             </div>
             <button class="btn btn-primary btn-sm add-to-cart-btn"
               id="add-${p.id}"

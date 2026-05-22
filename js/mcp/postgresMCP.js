@@ -40,10 +40,14 @@ const PostgresMCP = {
   },
 
   _log(tool, params, result, status) {
-    SessionState.addMCPCall(this.SERVER_NAME, tool, params, result, status);
-    SessionState.addToLog('Sistema MCP',
-      `${this.SERVER_NAME}::${tool} → ${status === 'success' ? '✅' : '❌'} ${JSON.stringify(result).substring(0,80)}`,
-      'mcp', '🗄️');
+    try {
+      if (typeof SessionState !== 'undefined' && SessionState.addMCPCall) {
+        SessionState.addMCPCall(this.SERVER_NAME, tool, params, result, status);
+        SessionState.addToLog('Sistema MCP',
+          `${this.SERVER_NAME}::${tool} → ${status === 'success' ? '✅' : '❌'} ${JSON.stringify(result).substring(0,80)}`,
+          'mcp', '🗄️');
+      }
+    } catch(e) { console.warn('PostgresMCP._log error:', e); }
   },
 
   // ── Herramientas MCP ─────────────────────────────────────
