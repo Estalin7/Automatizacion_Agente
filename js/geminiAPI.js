@@ -4,7 +4,7 @@
    ══════════════════════════════════════════════════ */
 
 const GeminiAPI = {
-  model: (window.HELENA_CONFIG?.GEMINI_MODEL) || 'gemini-2.0-flash-lite',
+  model: (window.HELENA_CONFIG?.GEMINI_MODEL) || 'gemini-2.5-flash-lite',
   baseUrl: 'https://generativelanguage.googleapis.com/v1beta/models',
 
   // ── API Key: config.js tiene prioridad sobre localStorage ──
@@ -69,7 +69,7 @@ const GeminiAPI = {
       try {
         const errData = await res.json();
         errMsg = errData?.error?.message || errMsg;
-      } catch(_) {}
+      } catch (_) { }
       throw new Error(`Gemini API: ${errMsg}`);
     }
 

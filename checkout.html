@@ -105,8 +105,7 @@
                            transition:all 0.25s;box-shadow:0 4px 16px rgba(200,16,46,0.35);
                            display:flex;align-items:center;gap:6px"
                     onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(200,16,46,0.5)'"
-                    onmouseout="this.style.transform='';this.style.boxShadow='0 4px 16px rgba(200,16,46,0.35)'"
-                    onclick="MapPicker.open(function(loc){ document.getElementById('field-address').value=loc.address; document.getElementById('field-address').dispatchEvent(new Event('input')); })">
+                    onmouseout="this.style.transform='';this.style.boxShadow='0 4px 16px rgba(200,16,46,0.35)'">
                     📍 Elegir en Mapa
                   </button>
                 </div>
@@ -287,6 +286,26 @@
 document.addEventListener('DOMContentLoaded', () => {
   GeminiConfig.init();
   UI.initNavbar();
+
+  // ── Botón de mapa — Event listener seguro ───────────────────
+  const openMapBtn = document.getElementById('open-map-btn');
+  if (openMapBtn) {
+    openMapBtn.addEventListener('click', () => {
+      if (typeof window.MapPicker !== 'undefined' && typeof window.MapPicker.open === 'function') {
+        window.MapPicker.open(function(loc) {
+          const addrField = document.getElementById('field-address');
+          if (addrField) {
+            addrField.value = loc.address;
+            addrField.dispatchEvent(new Event('input'));
+          }
+        });
+      } else {
+        console.error('MapPicker no está disponible aún.');
+        alert('El selector de mapa no está listo. Por favor recarga la página.');
+      }
+    });
+  }
+
 
   // ── Renderizar resumen del pedido ───────────────────────
   function renderSummary() {
