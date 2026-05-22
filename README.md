@@ -11,7 +11,7 @@ Construcción de una plataforma e-commerce premium para "Chocolates Helena" con 
 
 ```mermaid
 graph TD
-    U[👤 Usuario Web] -->|Interacción| FE[Frontend Premium]
+    U[👤 Usuario Web] -->|Interacción| FE[Frontend ]
     FE -->|Chat / Carrito| OS[🧠 OS Orquestador Central]
 
     OS --> A1[Agente 1: Atención & Triage]
