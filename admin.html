@@ -51,8 +51,10 @@
     <li><a href="index.html">Catálogo</a></li>
     <li><a href="checkout.html">Checkout</a></li>
   </ul>
-  <div class="nav-actions">
+  <div class="nav-actions" style="gap:var(--space-sm)">
     <button class="btn btn-ghost btn-sm" id="refresh-btn" onclick="loadAdminData()">🔄 Actualizar</button>
+    <button class="btn btn-ghost btn-sm" onclick="GeminiConfig.showModal()" title="Configurar Gemini AI">🤖 Gemini AI</button>
+    <button class="btn btn-ghost btn-sm" style="color:var(--error)" onclick="resetAllData()" title="Borrar todos los datos de prueba">🗑️ Reset DB</button>
   </div>
 </nav>
 
@@ -145,7 +147,9 @@
   </div>
 </main>
 
+<script src="js/config.js"></script>
 <script src="js/state.js"></script>
+<script src="js/geminiAPI.js"></script>
 <script src="js/mcp/postgresMCP.js"></script>
 <script src="js/mcp/paymentMCP.js"></script>
 <script src="js/mcp/mapsMCP.js"></script>
@@ -157,6 +161,7 @@
 <script src="js/orchestrator.js"></script>
 <script src="js/catalog.js"></script>
 <script src="js/ui.js"></script>
+<script src="js/geminiConfig.js"></script>
 <script>
 function loadAdminData() {
   const pedidos = PostgresMCP.getAllPedidos();
@@ -245,7 +250,15 @@ function loadAdminData() {
   }
 }
 
+function resetAllData() {
+  if (!confirm('¿Seguro que quieres borrar TODOS los pedidos, emails y logs de prueba? Esta acción no se puede deshacer.')) return;
+  SessionState.clearStorage();
+  loadAdminData();
+  if (typeof UI !== 'undefined') UI.showToast('Base de datos reseteada', 'info');
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+  GeminiConfig.init();
   const navbar = document.querySelector('.navbar');
   if (navbar) window.addEventListener('scroll', () => navbar.classList.toggle('scrolled', window.scrollY > 40));
   loadAdminData();

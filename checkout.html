@@ -251,7 +251,9 @@
 </main>
 
 <!-- SCRIPTS -->
+<script src="js/config.js"></script>
 <script src="js/state.js"></script>
+<script src="js/geminiAPI.js"></script>
 <script src="js/mcp/postgresMCP.js"></script>
 <script src="js/mcp/paymentMCP.js"></script>
 <script src="js/mcp/mapsMCP.js"></script>
@@ -263,8 +265,10 @@
 <script src="js/orchestrator.js"></script>
 <script src="js/catalog.js"></script>
 <script src="js/ui.js"></script>
+<script src="js/geminiConfig.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
+  GeminiConfig.init();
   UI.initNavbar();
 
   // ── Renderizar resumen del pedido ───────────────────────

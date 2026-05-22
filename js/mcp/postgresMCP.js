@@ -1,7 +1,8 @@
-/* ── postgres_mcp_server — Simulado ─────────────────────────── */
+/* ── postgres_mcp_server — Simulado con localStorage ───────── */
 
 const PostgresMCP = {
   SERVER_NAME: 'postgres_mcp_server',
+
   _db: {
     pedidos: [],
     stock: {
@@ -14,6 +15,24 @@ const PostgresMCP = {
     }
   },
 
+  // ── Persistencia ─────────────────────────────────────────
+  _saveDB() {
+    try {
+      localStorage.setItem('helena_db_pedidos', JSON.stringify(this._db.pedidos));
+      localStorage.setItem('helena_db_stock', JSON.stringify(this._db.stock));
+    } catch (e) { console.warn('PostgresMCP._saveDB error:', e); }
+  },
+
+  _loadDB() {
+    try {
+      const pedidos = localStorage.getItem('helena_db_pedidos');
+      const stock = localStorage.getItem('helena_db_stock');
+      if (pedidos) this._db.pedidos = JSON.parse(pedidos);
+      if (stock)   this._db.stock   = JSON.parse(stock);
+    } catch (e) { console.warn('PostgresMCP._loadDB error:', e); }
+  },
+
+  // ── Utilidades ───────────────────────────────────────────
   _delay(ms) { return new Promise(r => setTimeout(r, ms)); },
 
   _uuid() {
@@ -22,9 +41,12 @@ const PostgresMCP = {
 
   _log(tool, params, result, status) {
     SessionState.addMCPCall(this.SERVER_NAME, tool, params, result, status);
-    SessionState.addToLog('Sistema MCP', `${this.SERVER_NAME}::${tool} → ${status === 'success' ? '✅' : '❌'} ${JSON.stringify(result).substring(0,80)}`, 'mcp', '🗄️');
+    SessionState.addToLog('Sistema MCP',
+      `${this.SERVER_NAME}::${tool} → ${status === 'success' ? '✅' : '❌'} ${JSON.stringify(result).substring(0,80)}`,
+      'mcp', '🗄️');
   },
 
+  // ── Herramientas MCP ─────────────────────────────────────
   async verificar_stock(tipo, cantidad) {
     await this._delay(600 + Math.random() * 400);
     const stock = this._db.stock[tipo];
@@ -35,9 +57,7 @@ const PostgresMCP = {
     }
     const result = {
       disponible: stock.disponible && stock.cantidad >= cantidad,
-      stock_actual: stock.cantidad,
-      solicitado: cantidad,
-      tipo
+      stock_actual: stock.cantidad, solicitado: cantidad, tipo
     };
     this._log('verificar_stock', { tipo, cantidad }, result, 'success');
     return result;
@@ -63,13 +83,12 @@ const PostgresMCP = {
     orden.items.forEach(item => {
       if (this._db.stock[item.type]) {
         this._db.stock[item.type].cantidad -= item.quantity;
-        if (this._db.stock[item.type].cantidad <= 0) {
-          this._db.stock[item.type].disponible = false;
-        }
+        if (this._db.stock[item.type].cantidad <= 0) this._db.stock[item.type].disponible = false;
       }
     });
+    this._saveDB(); // 💾 Persistir
     const result = { pedido_id: pedido.pedido_id, status: pedido.status, fecha: pedido.fecha_creacion };
-    this._log('insertar_pedido', { clienteId: orden.clienteId, items: orden.items.length, total: orden.total }, result, 'success');
+    this._log('insertar_pedido', { clienteId: orden.clienteId, total: orden.total }, result, 'success');
     return result;
   },
 
@@ -84,13 +103,13 @@ const PostgresMCP = {
     const pedido = this._db.pedidos[idx];
     pedido.status = 'Cancelado - Pago Rechazado';
     pedido.fecha_actualizacion = new Date().toISOString();
-    // Reintegrar stock
     pedido.items.forEach(item => {
       if (this._db.stock[item.type]) {
         this._db.stock[item.type].cantidad += item.quantity;
         this._db.stock[item.type].disponible = true;
       }
     });
+    this._saveDB(); // 💾 Persistir
     const result = { pedido_id: pedidoId, status: 'Cancelado - Pago Rechazado', success: true };
     this._log('eliminar_o_cancelar_pedido', { pedidoId }, result, 'success');
     return result;
@@ -99,13 +118,10 @@ const PostgresMCP = {
   async actualizar_pedido_produccion(pedidoId) {
     await this._delay(600 + Math.random() * 400);
     const pedido = this._db.pedidos.find(p => p.pedido_id === pedidoId);
-    if (!pedido) {
-      const result = { error: `Pedido ${pedidoId} no encontrado` };
-      this._log('actualizar_pedido_produccion', { pedidoId }, result, 'error');
-      throw new Error(result.error);
-    }
+    if (!pedido) throw new Error(`Pedido ${pedidoId} no encontrado`);
     pedido.status = 'Pagado - En Preparación';
     pedido.fecha_actualizacion = new Date().toISOString();
+    this._saveDB(); // 💾 Persistir
     const result = { pedido_id: pedidoId, status: pedido.status, success: true };
     this._log('actualizar_pedido_produccion', { pedidoId }, result, 'success');
     return result;
@@ -114,28 +130,21 @@ const PostgresMCP = {
   async actualizar_pedido_entrega(pedidoId, rutaInfo) {
     await this._delay(500 + Math.random() * 300);
     const pedido = this._db.pedidos.find(p => p.pedido_id === pedidoId);
-    if (!pedido) {
-      const result = { error: `Pedido ${pedidoId} no encontrado` };
-      this._log('actualizar_pedido_entrega', { pedidoId }, result, 'error');
-      throw new Error(result.error);
-    }
+    if (!pedido) throw new Error(`Pedido ${pedidoId} no encontrado`);
     pedido.ruta_entrega = rutaInfo;
     pedido.status = 'En Camino';
     pedido.fecha_actualizacion = new Date().toISOString();
     pedido.tiempo_estimado_entrega = rutaInfo.tiempoEstimadoMin;
+    this._saveDB(); // 💾 Persistir
     const result = { pedido_id: pedidoId, status: 'En Camino', ruta_asignada: true, success: true };
     this._log('actualizar_pedido_entrega', { pedidoId, ruta: rutaInfo.distanciaKm + 'km' }, result, 'success');
     return result;
   },
 
-  // Método interno para el panel de admin
-  getAllPedidos() {
-    return [...this._db.pedidos];
-  },
-
-  getStock() {
-    return { ...this._db.stock };
-  }
+  getAllPedidos() { return [...this._db.pedidos]; },
+  getStock()     { return { ...this._db.stock }; }
 };
 
+// Cargar BD desde localStorage al iniciar
+PostgresMCP._loadDB();
 window.PostgresMCP = PostgresMCP;

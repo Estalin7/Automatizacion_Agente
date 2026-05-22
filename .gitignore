@@ -1,0 +1,11 @@
+# ── Chocolates Helena — .gitignore ──────────────────────────
+# Protege la API key de Gemini (config.js contiene credenciales)
+js/config.js
+
+# Sistema
+.DS_Store
+*.DS_Store
+Thumbs.db
+
+# Logs
+*.log

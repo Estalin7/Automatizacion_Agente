@@ -119,11 +119,11 @@ class SwarmOrchestrator {
   }
 
   /* ────────────────────────────────────────────────────────────
-     Chat con el Agente 1
+     Chat con el Agente 1 (usa Gemini si hay API key)
      ──────────────────────────────────────────────────────────── */
   async chat(userMessage) {
-    const intent = this.frontAgent.processUserMessage(userMessage);
-    return this.frontAgent.respondToIntent(intent, userMessage);
+    // frontAgent.chat() maneja Gemini + fallback automáticamente
+    return this.frontAgent.chat(userMessage);
   }
 
   async greetUser() {

@@ -1,35 +1,62 @@
-/* ── State Management — Chocolates Helena ─────────────────────── */
+/* ── State Management — Chocolates Helena (con persistencia) ── */
 
 const SessionState = {
   currentAgent: null,
   flowActive: false,
 
-  customer: {
-    id: null,
-    name: null,
-    email: null,
-    phone: null,
-    address: null
-  },
-
+  customer: { id: null, name: null, email: null, phone: null, address: null },
   currentOrder: {
-    items: [],          // [{ productId, name, type, quantity, unitPrice, subtotal }]
-    total: 0,
-    pedidoId: null,
-    status: null,       // 'pendiente_pago' | 'pagado_preparacion' | 'en_entrega' | 'cancelado'
-    paymentToken: null,
-    paymentCode: null,
-    paymentApproved: null,
-    deliveryInfo: null  // { lat, lng, tiempoEstimado, distanciaKm, rutaPuntos }
+    items: [], total: 0, pedidoId: null, status: null,
+    paymentToken: null, paymentCode: null, paymentApproved: null, deliveryInfo: null
+  },
+  cart: [],
+  swarmLog: [],
+  mcpCalls: [],
+
+  // ── Persistencia localStorage ─────────────────────────────
+  _storageKey: 'helena_session',
+
+  saveToStorage() {
+    try {
+      localStorage.setItem('helena_cart', JSON.stringify(this.cart));
+      localStorage.setItem('helena_customer', JSON.stringify(this.customer));
+      localStorage.setItem('helena_mcp_calls', JSON.stringify(this.mcpCalls.slice(-200)));
+      localStorage.setItem('helena_swarm_log', JSON.stringify(this.swarmLog.slice(-300)));
+      if (this.currentOrder.pedidoId) {
+        localStorage.setItem('helena_current_order', JSON.stringify(this.currentOrder));
+      }
+    } catch (e) { console.warn('SessionState.saveToStorage error:', e); }
   },
 
-  cart: [],             // items en el carrito antes del checkout
+  loadFromStorage() {
+    try {
+      const cart = JSON.parse(localStorage.getItem('helena_cart') || '[]');
+      const customer = JSON.parse(localStorage.getItem('helena_customer') || '{}');
+      const mcpCalls = JSON.parse(localStorage.getItem('helena_mcp_calls') || '[]');
+      const swarmLog = JSON.parse(localStorage.getItem('helena_swarm_log') || '[]');
+      const order = JSON.parse(localStorage.getItem('helena_current_order') || 'null');
+      this.cart = Array.isArray(cart) ? cart : [];
+      if (customer && typeof customer === 'object') {
+        this.customer = { ...this.customer, ...customer };
+      }
+      this.mcpCalls = Array.isArray(mcpCalls) ? mcpCalls : [];
+      this.swarmLog = Array.isArray(swarmLog) ? swarmLog : [];
+      if (order) this.currentOrder = { ...this.currentOrder, ...order };
+    } catch (e) { console.warn('SessionState.loadFromStorage error:', e); }
+  },
 
-  swarmLog: [],         // log completo de actividad del enjambre
-  mcpCalls: [],         // historial de llamadas MCP
+  clearStorage() {
+    ['helena_cart','helena_customer','helena_mcp_calls','helena_swarm_log','helena_current_order',
+     'helena_db_pedidos','helena_db_stock','helena_emails'].forEach(k => localStorage.removeItem(k));
+    this.cart = [];
+    this.customer = { id: null, name: null, email: null, phone: null, address: null };
+    this.mcpCalls = [];
+    this.swarmLog = [];
+    this.currentOrder = { items: [], total: 0, pedidoId: null, status: null, paymentToken: null, paymentCode: null, paymentApproved: null, deliveryInfo: null };
+    this.emit('cart:update', { cart: [] });
+  },
 
-  // ── Métodos ─────────────────────────────────────────────────
-
+  // ── Métodos ──────────────────────────────────────────────
   setAgent(agentName) {
     this.currentAgent = agentName;
     this.emit('agent:change', { agent: agentName });
@@ -39,13 +66,11 @@ const SessionState = {
     const entry = {
       id: Date.now() + Math.random(),
       timestamp: new Date().toLocaleTimeString('es-CO', { hour12: false }),
-      agent: agentName,
-      message,
-      type,   // 'info' | 'success' | 'error' | 'warning' | 'mcp' | 'handoff'
-      icon
+      agent: agentName, message, type, icon
     };
     this.swarmLog.push(entry);
     this.emit('log:new', entry);
+    this.saveToStorage();
     return entry;
   },
 
@@ -53,14 +78,14 @@ const SessionState = {
     const call = {
       id: Date.now() + Math.random(),
       timestamp: new Date().toLocaleTimeString('es-CO', { hour12: false }),
-      server,
-      tool,
+      server, tool,
       params: JSON.stringify(params),
       result: JSON.stringify(result),
-      status  // 'success' | 'error' | 'pending'
+      status
     };
     this.mcpCalls.push(call);
     this.emit('mcp:call', call);
+    this.saveToStorage();
     return call;
   },
 
@@ -71,20 +96,17 @@ const SessionState = {
       existing.subtotal = existing.quantity * existing.unitPrice;
     } else {
       this.cart.push({
-        productId: product.id,
-        name: product.name,
-        type: product.type,
-        quantity,
-        unitPrice: product.price,
-        subtotal: product.price * quantity,
-        image: product.image
+        productId: product.id, name: product.name, type: product.type,
+        quantity, unitPrice: product.price, subtotal: product.price * quantity, image: product.image
       });
     }
+    this.saveToStorage();
     this.emit('cart:update', { cart: this.cart });
   },
 
   removeCartItem(productId) {
     this.cart = this.cart.filter(i => i.productId !== productId);
+    this.saveToStorage();
     this.emit('cart:update', { cart: this.cart });
   },
 
@@ -95,6 +117,7 @@ const SessionState = {
       item.quantity = quantity;
       item.subtotal = item.quantity * item.unitPrice;
     }
+    this.saveToStorage();
     this.emit('cart:update', { cart: this.cart });
   },
 
@@ -112,29 +135,24 @@ const SessionState = {
     this.flowActive = false;
     this.customer = { id: null, name: null, email: null, phone: null, address: null };
     this.currentOrder = { items: [], total: 0, pedidoId: null, status: null, paymentToken: null, paymentCode: null, paymentApproved: null, deliveryInfo: null };
-    this.swarmLog = [];
-    this.mcpCalls = [];
+    localStorage.removeItem('helena_current_order');
   },
 
-  // ── Event Bus ────────────────────────────────────────────────
+  // ── Event Bus ────────────────────────────────────────────
   _listeners: {},
-
   on(event, callback) {
     if (!this._listeners[event]) this._listeners[event] = [];
     this._listeners[event].push(callback);
   },
-
   off(event, callback) {
-    if (this._listeners[event]) {
+    if (this._listeners[event])
       this._listeners[event] = this._listeners[event].filter(cb => cb !== callback);
-    }
   },
-
   emit(event, data) {
-    if (this._listeners[event]) {
-      this._listeners[event].forEach(cb => cb(data));
-    }
+    if (this._listeners[event]) this._listeners[event].forEach(cb => cb(data));
   }
 };
 
+// Cargar estado guardado al iniciar
+SessionState.loadFromStorage();
 window.SessionState = SessionState;
