@@ -57,12 +57,7 @@ graph TD
 > **¿Simular o conectar a servicios reales?**
 > El plan asume simulación completa de los MCP servers. Si tienes claves de API reales (Stripe, Google Maps, PostgreSQL), podemos conectar a servicios reales. ¿Confirmas simulación?
 
-> [!IMPORTANT]
-> **¿Panel de Admin?**
-> ¿Deseas incluir un panel de administración para ver pedidos registrados en la "BD simulada"? Esto agregaría valor demo considerable.
 
-> [!NOTE]
-> **Idioma de la interfaz:** Se asume español latinoamericano para toda la UI y mensajes de los agentes.
 
 ---
 
