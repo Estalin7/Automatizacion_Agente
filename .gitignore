@@ -3,6 +3,7 @@
 # ── Frontend — claves de API (no subir a GitHub) ─────────────
 js/config.js
 frontend/js/config.js
+.vscode
 
 # ── Backend — variables de entorno secretas ──────────────────
 backend/.env
