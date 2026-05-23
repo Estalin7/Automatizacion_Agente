@@ -1,11 +1,18 @@
 # ── Chocolates Helena — .gitignore ──────────────────────────
-# Protege la API key de Gemini (config.js contiene credenciales)
-js/config.js
 
-# Sistema
+# ── Frontend — claves de API (no subir a GitHub) ─────────────
+js/config.js
+frontend/js/config.js
+
+# ── Backend — variables de entorno secretas ──────────────────
+backend/.env
+backend/node_modules/
+
+# ── Sistema ───────────────────────────────────────────────────
 .DS_Store
 *.DS_Store
 Thumbs.db
 
-# Logs
+# ── Logs ──────────────────────────────────────────────────────
 *.log
+npm-debug.log*
